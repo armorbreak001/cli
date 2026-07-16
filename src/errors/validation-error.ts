@@ -32,7 +32,19 @@ export class ValidationError extends Error {
   private buildError(err: any) {
     const errorsInfo: Array<string> = [];
 
-    if (err.title) {
+    // Handle plain string errors (e.g. from ValidationService.parseDocument)
+    if (typeof err === 'string') {
+      this.message = err;
+      return;
+    }
+
+    // Handle Error instances with a message but no ParserError shape
+    if (err instanceof Error && !(err as any).title && !(err as any).validationErrors) {
+      this.message = err.message;
+      return;
+    }
+
+    if ((err as any).title) {
       errorsInfo.push(err.title);
     }
 
